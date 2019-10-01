@@ -1,17 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h> 
 #include <string.h>
+#include <time.h>
 
 char TABLE[9][9][10];
 char P1[10] = "XX";
 char P2[10] = "OO";
+int Bomb[9][9][10];
+char B[10] = "BB";
+char H[10] = "HH";
+
+int ScoreP1;
+int ScoreP2;
 
 void clrscr(){
     system("@cls||clear");
 }
 
 void initial(int Size){
-
+    ScoreP1 = 100;
+    ScoreP2 =100;
     int i,j,n;
     char pos[10];
     for (i=0;i<Size;i++){
@@ -48,7 +56,7 @@ void choosePosition(int Pos,int Player){
     
 }
 
-int chckWiner(int Size, int Player){
+int checkWiner(int Size, int Player){
     int i;    
     for (i=0;i<=Size;i++){
         int j;
@@ -143,6 +151,8 @@ void draw(int Size){
     clrscr();
     int i,j;
     char pos;
+    printf("Score Player 1: %d\n",ScoreP1);
+    printf("Score Player 2: %d\n",ScoreP2);
     for (i=0;i<Size;i++){
         for (j=0;j<Size;j++){
             printf("| %s ",TABLE[i][j]);
@@ -151,11 +161,89 @@ void draw(int Size){
     }
 }
 
+void BombRandom(int Size){
+    int i,row,col;
+    if(Size == 7){
+        srand(time(NULL));
+        for(i=0;i<3;i++){
+            row = rand()%7;
+            col = rand()%7;
+            strcpy(Bomb[col][row],B);
+            //strcpy(TABLE[col][row],B);
+        }
+        for (i = 0; i < 2; i++)
+        {
+            row = rand()%7;
+            col = rand()%7;
+            strcpy(Bomb[col][row],H);
+            //strcpy(TABLE[col][row],B);
+        }
+        
+        
+    }
+    else
+    {
+        srand(time(NULL));
+        for(i=0;i<4;i++){
+            n = rand()%81;
+            Bomb[n] = 'B';
+        }
+        for (i = 0; i < 3; i++)
+        {
+            n = rand()%81;
+            Bomb[n] = 'H';
+        }
+    }
+    
+}
+
+int checkBomb(int Pos, int Player){
+    int i,j;
+    i = Pos/10-1;
+    j = Pos%10-1;
+    if(Player ==1){
+        if(Bomb[i][j]=='B'){
+            ScoreP1 -=50;
+            strcpy(TABLE[i][j],H);
+        }
+        if(Bomb[i][j]=='H'){
+            if(ScoreP1<100){
+                ScoreP1 += 50;
+                strcpy(TABLE[i][j],H);
+            }
+        }
+        if(ScoreP1 <= 0){
+            return 2;
+        }
+    }
+    else if(Player == 2){
+        if(Bomb[i][j]=='B'){
+            ScoreP2 -=50;
+        }
+        if(Bomb[i][j]=='H'){
+            if(ScoreP2<100){
+                ScoreP2 += 50;
+            }
+        }
+        else if(ScoreP2 <=0)
+        {
+            return 1;
+        }
+    }
+    
+    
+    return 0;
+    
+
+    
+}
+
 int main(){
     initial(9);
-    
+
     int Pos,Size;
     int Player =1;
+   
     printf("Input Size\n");
     printf("1. 7*7\n2. 9*9\n");
     scanf("%d",&Size);
@@ -166,17 +254,17 @@ int main(){
         scanf("%d",&Size);
         //Size = 1;
     }
-    
-    
+    if(Size == 1){
+        Size = 7;
+    }
+    else
+    {
+        Size = 9;
+    }
+    BombRandom(Size);
     while (1)
     {   
-        if(Size == 1){
-            Size = 7;
-        }
-        else
-        {
-            Size = 9;
-        }
+       
           
         draw(Size);
         printf("Input position\n>");
@@ -188,19 +276,28 @@ int main(){
         }             
      
         choosePosition(Pos,Player);
-        draw(Size);
-        if(chckWiner(Size,Player) != 0){
-            if(chckWiner(Size,Player) == 1){
-                printf("Player1");
-                break;
+        checkBomb(Size,Player);
+        if(checkBomb(Size,Player) != 0){
+            if (checkBomb(Size,Player) == 1){
+                printf("Player 1");
             }
-            else
-            {
+            else{
                 printf("Player 2");
-                break;
             }
-            
         }
+        draw(Size);
+        // if(checkWiner(Size,Player) != 0){
+        //     if(checkWiner(Size,Player) == 1){
+        //         printf("Player1");
+        //         break;
+        //     }
+        //     else
+        //     {
+        //         printf("Player 2");
+        //         break;
+        //     }
+            
+        // }
         // Player +=1;
         // if (Player>2){
         //     Player =1;
