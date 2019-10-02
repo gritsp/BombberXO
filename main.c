@@ -185,13 +185,15 @@ void BombRandom(int Size){
     {
         srand(time(NULL));
         for(i=0;i<4;i++){
-            n = rand()%81;
-            Bomb[n] = 'B';
+            row = rand()%7;
+            col = rand()%7;
+            //strcpy(Bomb[col][row],B);
         }
         for (i = 0; i < 3; i++)
         {
-            n = rand()%81;
-            Bomb[n] = 'H';
+            row = rand()%7;
+            col = rand()%7;
+            //strcpy(Bomb[col][row],B);
         }
     }
     
